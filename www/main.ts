@@ -87,7 +87,6 @@ class Game {
     /* Stores which levels the player has completed */
     static completedLevels: boolean[];
 
-    static keysdown: boolean[] = [];
     static sm: StateManager;
 
     static offset: number[][] = [[0, -1], [1, 0], [0, 1], [-1, 0]]; // tile offsets (N, E, S, W)
@@ -99,10 +98,6 @@ class Game {
     static lvlselectButtonDirection: number = 0;
 
     static stats: any;
-
-    static KEYBOARD = {
-        BACKSPACE: 8, TAB: 9, RETURN: 13, ESC: 27, SPACE: 32, PAGEUP: 33, PAGEDOWN: 34, END: 35, HOME: 36, LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40, INSERT: 45, DELETE: 46, ZERO: 48, ONE: 49, TWO: 50, THREE: 51, FOUR: 52, FIVE: 53, SIX: 54, SEVEN: 55, EIGHT: 56, NINE: 57, A: 65, B: 66, C: 67, D: 68, E: 69, F: 70, G: 71, H: 72, I: 73, J: 74, K: 75, L: 76, M: 77, N: 78, O: 79, P: 80, Q: 81, R: 82, S: 83, T: 84, U: 85, V: 86, W: 87, X: 88, Y: 89, Z: 90, TILDE: 192, SHIFT: 999
-    };
 
     static init() {
         document.title = "Mirrors V" + Game.version + " Mobile";
@@ -191,20 +186,7 @@ class Game {
     static update(): void {
         Game.ticks += 1;
 
-        if (Game.keysdown[Game.KEYBOARD.ESC]) {
-            if (Game.popupUp === true) {
-                Sound.play(Sound.select);
-                Game.clearPopup();
-            } else {
-                this.sm.enterPreviousState();
-            }
-        }
-
         Game.sm.update();
-
-        for (var i = 0; i < Game.keysdown.length; i++) {
-            Game.keysdown[i] = false;
-        }
     }
 
     static render(): void {
@@ -1221,21 +1203,6 @@ class Colour {
     static GRAY = '#0A0A0A';
     static DARK_GRAY = '#121212';
     static LIGHT_GRAY = '#555'
-
-    /*static nextColor(colour: number, useWhite: boolean) {
-        switch (colour) {
-            case COLOUR.RED:
-                return COLOUR.GREEN;
-            case COLOUR.GREEN:
-                return COLOUR.BLUE;
-            case COLOUR.BLUE:
-                if (useWhite) return COLOUR.WHITE;
-                return COLOUR.RED;
-            case COLOUR.WHITE:
-                return COLOUR.RED;
-        }
-        return COLOUR.RED;
-    }*/
 }
 
 function getMessage(type:string): string {
@@ -1370,25 +1337,6 @@ class Direction {
 
 }
 
-function keyPressed(event: KeyboardEvent, down: boolean): void {
-    if (Game.keysdown) {
-        var keycode = event.keyCode ? event.keyCode : event.which;
-        Game.keysdown[keycode] = down;
-
-        if (Game.keysdown[Game.KEYBOARD.ONE]) Game.selectedTileID = 0;
-        if (Game.keysdown[Game.KEYBOARD.TWO]) Game.selectedTileID = 1;
-        if (Game.keysdown[Game.KEYBOARD.THREE]) Game.selectedTileID = 2;
-        if (Game.keysdown[Game.KEYBOARD.FOUR]) Game.selectedTileID = 3;
-    }
-}
-
-window.onkeydown = function(event: KeyboardEvent): void {
-    keyPressed(event, true);
-};
-window.onkeyup = function(event: KeyboardEvent): void {
-    keyPressed(event, false);
-};
-
 window.ontouchmove = function(event:TouchEvent): void {
     event.preventDefault();
 }
@@ -1412,11 +1360,3 @@ window.onload = function() {
     Game.init();
     Game.loop();
 };
-
-// This is actually just really annoying and useless, since we're saving on click anyway
-// window.onbeforeunload = function(event: BeforeUnloadEvent) {
-//     if (Game.debug === false) {
-//         if (typeof event == 'undefined') event = window.event;
-//         if (event) event.returnValue = 'Are you sure you want to close Mirrors?';
-//     }
-// };

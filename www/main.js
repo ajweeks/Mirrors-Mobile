@@ -122,19 +122,7 @@ var Game = (function () {
     };
     Game.update = function () {
         Game.ticks += 1;
-        if (Game.keysdown[Game.KEYBOARD.ESC]) {
-            if (Game.popupUp === true) {
-                Sound.play(Sound.select);
-                Game.clearPopup();
-            }
-            else {
-                this.sm.enterPreviousState();
-            }
-        }
         Game.sm.update();
-        for (var i = 0; i < Game.keysdown.length; i++) {
-            Game.keysdown[i] = false;
-        }
     };
     Game.render = function () {
         Game.sm.render();
@@ -172,15 +160,11 @@ var Game = (function () {
         [9, 9, [0, 0, 0, 0, [2, 3, 1, 2], [2, 2, 1, 2], [2, 2, 1, 2], [2, 1, 1, 2], 0, [1, 1], 0, 0, 1, 0, 0, 0, 0, 0, [3, 3, 'XXBX'], 0, [1, 1], [3, 2, 'RXBX'], 1, 1, 0, 0, 0, 0, [1, 1], 1, [1, 1], [3, 0, 'RXBX'], [1, 1], 0, 0, 0, 0, 0, [1, 1], 0, [1, 1], [3, 0, 'RXBX'], [1, 1], [1, 1], 0, 0, 0, 0, 1, [1, 1], 1, [3, 3, 'RXBX'], 1, 0, 0, 0, 0, 0, [1, 1], 0, 1, [2, 3, 1, 2], 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, [2, 3, 1, 0], 2, 2, [2, 1, 1, 0], 0, 0, 0, 0]],
         [9, 9, [[1, 1], 0, 1, 0, 0, 0, [1, 1], 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, [1, 1], 0, 0, 0, 0, 0, 0, 0, [1, 1], 0, 0, 0, [3, 2, 'XXRX'], [3, 1, 'XXGX'], [3, 3, 'BXXX'], 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, [1, 1], 0, 0, 0, 0, [1, 1], 0, 0, [1, 1], 0, 2, [2, 0, 1, 1], [2, 1, 1, 2], 0, 0, [1, 1], 1, 0, 1]]
     ];
-    Game.keysdown = [];
     Game.offset = [[0, -1], [1, 0], [0, 1], [-1, 0]];
     Game.ticks = 0;
     Game.fps = 60;
     Game.lvlselectButtonSpeed = 6;
     Game.lvlselectButtonDirection = 0;
-    Game.KEYBOARD = {
-        BACKSPACE: 8, TAB: 9, RETURN: 13, ESC: 27, SPACE: 32, PAGEUP: 33, PAGEDOWN: 34, END: 35, HOME: 36, LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40, INSERT: 45, DELETE: 46, ZERO: 48, ONE: 49, TWO: 50, THREE: 51, FOUR: 52, FIVE: 53, SIX: 54, SEVEN: 55, EIGHT: 56, NINE: 57, A: 65, B: 66, C: 67, D: 68, E: 69, F: 70, G: 71, H: 72, I: 73, J: 74, K: 75, L: 76, M: 77, N: 78, O: 79, P: 80, Q: 81, R: 82, S: 83, T: 84, U: 85, V: 86, W: 87, X: 88, Y: 89, Z: 90, TILDE: 192, SHIFT: 999
-    };
     return Game;
 })();
 var BasicState = (function () {
@@ -1181,26 +1165,6 @@ var Direction = (function () {
     };
     return Direction;
 })();
-function keyPressed(event, down) {
-    if (Game.keysdown) {
-        var keycode = event.keyCode ? event.keyCode : event.which;
-        Game.keysdown[keycode] = down;
-        if (Game.keysdown[Game.KEYBOARD.ONE])
-            Game.selectedTileID = 0;
-        if (Game.keysdown[Game.KEYBOARD.TWO])
-            Game.selectedTileID = 1;
-        if (Game.keysdown[Game.KEYBOARD.THREE])
-            Game.selectedTileID = 2;
-        if (Game.keysdown[Game.KEYBOARD.FOUR])
-            Game.selectedTileID = 3;
-    }
-}
-window.onkeydown = function (event) {
-    keyPressed(event, true);
-};
-window.onkeyup = function (event) {
-    keyPressed(event, false);
-};
 window.ontouchmove = function (event) {
     event.preventDefault();
 };
