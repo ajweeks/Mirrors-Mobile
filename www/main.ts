@@ -292,23 +292,29 @@ class OptionState extends BasicState {
 }
 
 class LevelSelectState extends BasicState {
-    height: number;
     numOfLevels: number;
+    height: number;
+    colWidth: number;
     offset: number;
-    minOffset: number;
-    maxOffset: number;
+    page: number;
+    maxPages: number;
 
     constructor(sm: StateManager) {
         super(STATE.LEVEL_SELECT, sm);
-
-        this.height = 8;
-        this.numOfLevels = 64;
-        this.offset = 65;
-        this.minOffset = 65;
-        this.maxOffset = -230 * (this.numOfLevels / this.height - 1) + this.offset;
+        this.numOfLevels = Game.defaultLevels.length;
+        this.height = Math.floor(window.innerHeight / 51 - 4); // number of buttons per column
+        this.colWidth = 230; // number of pixels wide cols are
+        this.offset = window.innerWidth / 2 - this.colWidth / 2;
+        this.page = 0;
+        this.maxPages = -Math.floor((this.numOfLevels-1)/ this.height);
+        /*this.maxOffset = -(this.colWidth * (this.numOfLevels / this.height) + this.minOffset);*/
+        /*console.log(this.maxOffset);
+        this.maxOffset -= this.maxOffset % 230;
+        console.log(this.maxOffset);*/
 
         get('levelselectstate').style.display = "block";
-        var x, y, str = '', index;
+        var i, x, y, str = '', index;
+        str += '<div class="button" ontouchstart="Game.sm.enterPreviousState(); return false;" style="margin: 0; left: 10px; top: 75px; position: absolute">Back</div>';
         for (x = 0; x < Math.ceil(this.numOfLevels / this.height); x++) { // for every column
             str += '<div class="col">';
             for (y = 0; y < this.height; y++) { // for every item in the column
@@ -317,23 +323,27 @@ class LevelSelectState extends BasicState {
                 var enabled = Game.defaultLevels[index] !== undefined;
                 str += '<div class="button lvlselect' + (enabled ? ' enabled' : '') + '" id="' + index + 'lvlselectButton" ' +
                 (enabled ? 'ontouchstart="Game.sm.enterState(\'game\', ' + index + '); return false;"' : '') +
-                '>' + index + '</div>';
+                (index >= this.numOfLevels ? 'style="visibility: hidden"' : '') + '>' + index + '</div>';
+                // For some reason if you don't put blank buttons in for extra levels (index > numOfLevels),
+                // the buttons shift towards the bottom... use visibility: hidden with extra buttons for now
             }
             str += '</div>';
         }
         str += '<div id="backarrow" style="visibility: hidden" ontouchstart="Game.sm.currentState().scroll(\'L\'); return false;"><p>&#9664;</p></div>';
         str += '<div id="forwardarrow" ontouchstart="Game.sm.currentState().scroll(\'R\'); return false;"><p>&#9654;</p></div>';
-        str += '<div class="button" ontouchstart="Game.sm.enterPreviousState(); return false;" style="margin-left: 0; margin-top: -480px;">Back</div>';
         get('levelselectstate').style.width = 250 * Math.ceil(this.numOfLevels / this.height) + 'px'; // LATER make this better, but this works for now I guess
         get('levelselectstate').style.marginLeft = this.offset + 'px';
-        get('levelselectstate').style.marginTop = '80px';
+        get('levelselectstate').style.marginTop = '65px';
         get('levelselectstate').innerHTML = str;
 
         LevelSelectState.updateButtonBgs();
     }
 
     scroll(dir: string) {
-        this.offset += dir === 'R' ? -230 : 230;
+        this.page += (dir === 'R' ? -1 : 1);
+        console.log(this.page);
+        if (this.page > 0) this.page = 0;
+        if (this.page < this.maxPages) this.page = this.maxPages;
     }
 
     highestLevelUnlocked(): void {
@@ -360,11 +370,9 @@ class LevelSelectState extends BasicState {
 
     update() {
         /*this.offset += Game.lvlselectButtonSpeed * Game.lvlselectButtonDirection;*/
-        if (this.offset >= this.minOffset) {
-            this.offset = this.minOffset;
+        if (this.page === 0) {
             get('backarrow').style.visibility = "hidden";
-        } else if (this.offset <= this.maxOffset) {
-            this.offset = this.maxOffset;
+        } else if (this.page === this.maxPages) {
             get('forwardarrow').style.visibility = "hidden";
         } else {
             this.highestLevelUnlocked();
@@ -372,7 +380,7 @@ class LevelSelectState extends BasicState {
             get('backarrow').style.visibility = "visible";
         }
 
-        get('levelselectstate').style.marginLeft = this.offset + 'px';
+        get('levelselectstate').style.marginLeft = (this.offset + this.page * this.colWidth)+ 'px';
     }
 
     hide() {
@@ -1226,6 +1234,7 @@ function getMessage(type:string): string {
     }
     return 'Good Job';
  }
+
 function getBoolShorthand(bool): number {
     return bool === true || bool === 1 || bool === "1" ? 1 : 0;
 }
