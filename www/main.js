@@ -1183,9 +1183,9 @@ function mobileCheck() {
     return check;
 }
 window.onload = function () {
-    if (mobileCheck() === false) {
-        window.location.href = 'http://ajweeks.github.io/mirrors';
-    }
+    //if (mobileCheck() === false) {
+    //    window.location.href = 'http://ajweeks.github.io/mirrors';
+    //}
     Game.init();
     Game.loop();
 };
